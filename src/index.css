@@ -1,0 +1,54 @@
+@import "tailwindcss";
+body{
+    background: #efefef;
+}
+.text-shadow-blue {
+    text-shadow: 2px 2px 8px rgba(28, 61, 122, 0.5); /* soft dark blue glow */
+}
+::-webkit-scrollbar {
+    display: none;
+}
+/* src/index.css */
+
+/* Keep smooth for other scrolls, but snapping will override it—JS will handle nav clicks */
+html {
+    scroll-behavior: smooth;  /* Remove !important for now—JS takes over for nav */
+}
+
+/* Full height setup */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: auto;
+}
+
+/* Hide scrollbar (optional) */
+body::-webkit-scrollbar {
+    display: none;
+}
+
+body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Softer snapping: proximity allows animation; remove 'mandatory' to prevent instant jumps */
+.snap-y {
+    scroll-snap-type: y proximity;  /* Suggests snap but doesn't force it instantly */
+}
+
+/* Align sections to start (top) */
+.snap-start {
+    scroll-snap-align: start;
+}
+
+/* Hide scrollbar for horizontal elements */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
