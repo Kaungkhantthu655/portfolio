@@ -1,4 +1,0 @@
-{
-  "buildCommand": "npm install --legacy-peer-deps && npx tailwindcss --input ./src/index.css --output ./dist/output.css && npm run build",
-  "installCommand": "npm install --legacy-peer-deps"
-}
