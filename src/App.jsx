@@ -105,15 +105,15 @@ export default function App() {
     ];
 
     const skills = {
-        technical: ["React", "TypeScript", "Node.js", "Python", "MongoDB", "PostgreSQL"],
+        technical: ["React", "JavaScript", "Node.js", "Java", "MongoDB", "MySQL"],
         design: ["UI/UX Design", "Figma", "Adobe Creative Suite", "Prototyping", "Wireframing"],
-        tools: ["Git", "Docker", "AWS", "Jest", "Webpack", "GSAP"]
+        tools: ["Git", "Docker", "VSCode", "Figma", "GSAP"]
     };
 
     const socialLinks = [
-        { name: "GitHub", url: "https://github.com/yourusername", icon: "↗" },
-        { name: "LinkedIn", url: "https://linkedin.com/in/yourusername", icon: "↗" },
-        { name: "Email", url: "mailto:hello@kaungkhantthu.com", icon: "↗" }
+        { name: "GitHub", url: "https://github.com/Kaungkhantthu655", icon: "↗" },
+        { name: "LinkedIn", url: "https://linkedin.com/in/kk-t-b45958285", icon: "↗" },
+        { name: "Email", url: "mailto:thukaungkhant@gmail.com", icon: "↗" }
     ];
 
     // ScrollSpy: detect active section - Only run after mount
@@ -210,7 +210,7 @@ export default function App() {
                         Kaung Khant Thu
                     </h1>
                     <p className="text-xl md:text-2xl text-amber-100 text-center mb-6">
-                        Creative Developer & AI Engineer
+                        Full Stack Web Developer 
                     </p>
                     <p className="text-lg text-gray-300 text-center max-w-2xl mb-8">
                         I create digital experiences that blend beautiful design with 
@@ -267,10 +267,9 @@ export default function App() {
                             <h3 className="text-xl font-semibold text-amber-100 mb-4">Quick Facts</h3>
                             <ul className="space-y-3 text-gray-300">
                                 <li>📍 Based in Yangon, Myanmar</li>
-                                <li>💼 3+ years experience</li>
+                                <li>💼 0 years experience</li>
                                 <li>🎓 Computer Science Degree</li>
-                                <li>🤖 AI & ML Specialist</li>
-                                <li>🚀 20+ Projects Completed</li>
+                                <li>🚀 5+ Projects Completed</li>
                                 <li>🌱 Currently learning Three.js</li>
                             </ul>
                         </div>
