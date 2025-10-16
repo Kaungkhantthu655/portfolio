@@ -76,3 +76,32 @@
     background: rgba(251, 191, 36, 0.8);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+/* Ensure smooth scrolling performance */
+* {
+  scroll-margin-top: 80px; /* Adjust based on your nav height */
+}
+
+/* Better scroll performance */
+section {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000;
+}
+
+/* Force hardware acceleration for smoother animations */
+.scroll-reveal-item {
+  transform: translateZ(0);
+}
+
+/* Optional: Add a loading state for very fast scrolling */
+.fast-scroll {
+  pointer-events: none;
+}
+
+.fast-scroll * {
+  animation-play-state: paused !important;
+}

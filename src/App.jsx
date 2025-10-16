@@ -4,6 +4,7 @@ import { gsap } from "gsap";
 import PillNav from "./PillNav";
 import ProjectCard from "./ProjectCard";
 import ScrollReveal from "./ScrollReveal";
+import proPic from "./assets/pro picture.jpg";
 
 const sections = ["Home", "About", "Projects", "Skills", "Contact"];
 const NAV_HEIGHT = 80;
@@ -15,7 +16,7 @@ export default function App() {
     const [selectedProject, setSelectedProject] = useState(null);
     const sectionRefs = useRef([]);
     const projectsContainerRef = useRef(null);
-    const projectCardsRef = useRef([]); // Add this missing ref
+    const projectCardsRef = useRef([]);
 
     // Fix hydration and mounting issues
     useEffect(() => {
@@ -23,6 +24,89 @@ export default function App() {
         const timer = setTimeout(() => setIsLoading(false), 500);
         return () => clearTimeout(timer);
     }, []);
+
+    // Scroll performance monitor for fast scrolling
+    useEffect(() => {
+        if (!isMounted) return;
+
+        let scrollTimeout;
+        let lastScrollTop = 0;
+        let scrollSpeed = 0;
+
+        const handleScroll = () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            scrollSpeed = Math.abs(scrollTop - lastScrollTop);
+            lastScrollTop = scrollTop;
+
+            // If scrolling very fast, add a class to handle it
+            if (scrollSpeed > 100) {
+                document.body.classList.add('fast-scroll');
+            }
+
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(() => {
+                document.body.classList.remove('fast-scroll');
+            }, 100);
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            clearTimeout(scrollTimeout);
+        };
+    }, [isMounted]);
+
+    // Improved ScrollSpy with better performance
+    useEffect(() => {
+        if (!isMounted) return;
+
+        let ticking = false;
+
+        const onScroll = () => {
+            const scrollPos = window.scrollY + window.innerHeight / 3;
+            const tolerance = 100;
+            
+            for (let i = 0; i < sectionRefs.current.length; i++) {
+                const sec = sectionRefs.current[i];
+                if (sec) {
+                    const top = sec.offsetTop - tolerance;
+                    const bottom = top + sec.offsetHeight + tolerance;
+                    
+                    if (scrollPos >= top && scrollPos < bottom) {
+                        setActive(sections[i]);
+                        break;
+                    }
+                }
+            }
+        };
+
+        const scrollHandler = () => {
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    onScroll();
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        };
+
+        window.addEventListener("scroll", scrollHandler, { passive: true });
+        window.addEventListener("resize", scrollHandler, { passive: true });
+        
+        // Multiple initial checks to ensure proper detection
+        const initTimers = [
+            setTimeout(scrollHandler, 100),
+            setTimeout(scrollHandler, 500),
+            setTimeout(scrollHandler, 1000)
+        ];
+        
+        return () => {
+            window.removeEventListener("scroll", scrollHandler);
+            window.removeEventListener("resize", scrollHandler);
+            initTimers.forEach(timer => clearTimeout(timer));
+        };
+    }, [isMounted]);
 
     // Project hover effects like Duet Night Abyss
     const handleProjectHover = (hoveredIndex) => {
@@ -63,6 +147,15 @@ export default function App() {
             duration: 0.5,
             ease: "power2.out"
         });
+    };
+
+    // Handle PillNav smooth scroll
+    const handleLinkClick = (href) => {
+        const targetSection = document.querySelector(href);
+        if (targetSection) {
+            const targetPosition = targetSection.offsetTop - NAV_HEIGHT;
+            gsap.to(window, { duration: 1, scrollTo: targetPosition, ease: "power2.out" });
+        }
     };
 
     const projects = [
@@ -116,44 +209,6 @@ export default function App() {
         { name: "Email", url: "mailto:thukaungkhant@gmail.com", icon: "↗" }
     ];
 
-    // ScrollSpy: detect active section - Only run after mount
-    useEffect(() => {
-        if (!isMounted) return;
-
-        const onScroll = () => {
-            const scrollPos = window.scrollY + window.innerHeight / 2;
-            for (let i = 0; i < sectionRefs.current.length; i++) {
-                const sec = sectionRefs.current[i];
-                if (sec) {
-                    const top = sec.offsetTop;
-                    const bottom = top + sec.offsetHeight;
-                    if (scrollPos >= top && scrollPos < bottom) {
-                        setActive(sections[i]);
-                        break;
-                    }
-                }
-            }
-        };
-
-        window.addEventListener("scroll", onScroll, { passive: true });
-        // Delay initial scroll check to ensure DOM is ready
-        const initTimer = setTimeout(onScroll, 100);
-        
-        return () => {
-            window.removeEventListener("scroll", onScroll);
-            clearTimeout(initTimer);
-        };
-    }, [isMounted]);
-
-    // Handle PillNav smooth scroll
-    const handleLinkClick = (href) => {
-        const targetSection = document.querySelector(href);
-        if (targetSection) {
-            const targetPosition = targetSection.offsetTop - NAV_HEIGHT;
-            gsap.to(window, { duration: 1, scrollTo: targetPosition, ease: "power2.out" });
-        }
-    };
-
     // Don't render anything until mounted to prevent hydration issues
     if (!isMounted) {
         return (
@@ -192,23 +247,27 @@ export default function App() {
 
             {/* Home Section */}
             <section
-                id="home"
-                aria-label="Home Section"
-                ref={(el) => {
-                    if (el) sectionRefs.current[0] = el;
-                }}
-                className="min-h-screen flex flex-col items-center justify-center px-6 relative"
-            >
-                <div className="absolute inset-0 bg-gradient-to-br from-amber-900/10 via-transparent to-purple-900/10"></div>
-                <ScrollReveal containerClassName="flex flex-col items-center gap-6 max-w-3xl w-full relative z-10">
-                    <div className="w-32 h-32 rounded-full bg-gradient-to-r from-amber-200 to-yellow-400 mb-6 overflow-hidden border-4 border-white/20">
-                        <div className="w-full h-full bg-gray-700 flex items-center justify-center text-white">
-                            Photo
-                        </div>
-                    </div>
-                    <h1 className="text-5xl md:text-7xl font-serif font-bold text-center bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent">
-                        Kaung Khant Thu
-                    </h1>
+    id="home"
+    aria-label="Home Section"
+    ref={(el) => {
+        if (el) sectionRefs.current[0] = el;
+    }}
+    className="min-h-screen flex flex-col items-center justify-center px-6 relative scroll-mt-20"
+>
+    <div className="absolute inset-0 bg-gradient-to-br from-amber-900/10 via-transparent to-purple-900/10"></div>
+    <ScrollReveal containerClassName="flex flex-col items-center gap-6 max-w-3xl w-full relative z-10">
+        {/* Larger profile picture with better styling */}
+        <div className="w-40 h-40 md:w-48 md:h-48 rounded-full bg-gradient-to-r from-amber-200 to-yellow-400 mb-8 overflow-hidden border-4 border-white/20 shadow-2xl shadow-amber-400/20">
+            <img 
+                src={proPic} 
+                alt="Kaung Khant Thu - Full Stack Developer"
+                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+            />
+        </div>
+        
+        <h1 className="text-5xl md:text-7xl font-serif font-bold text-center bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent">
+            Kaung Khant Thu
+        </h1>
                     <p className="text-xl md:text-2xl text-amber-100 text-center mb-6">
                         Full Stack Web Developer 
                     </p>
@@ -234,7 +293,7 @@ export default function App() {
                 ref={(el) => {
                     if (el) sectionRefs.current[1] = el;
                 }}
-                className="min-h-screen flex flex-col items-center justify-center px-6 bg-black/50"
+                className="min-h-screen flex flex-col items-center justify-center px-6 bg-black/50 scroll-mt-20"
             >
                 <ScrollReveal containerClassName="flex flex-col items-center gap-8 max-w-4xl w-full">
                     <h2 className="text-4xl md:text-5xl font-serif text-amber-100">About Me</h2>
@@ -284,7 +343,7 @@ export default function App() {
                 ref={(el) => {
                     if (el) sectionRefs.current[2] = el;
                 }}
-                className="min-h-screen flex flex-col items-center justify-center px-6 py-20 relative overflow-hidden"
+                className="min-h-screen flex flex-col items-center justify-center px-6 py-20 relative overflow-hidden scroll-mt-20"
             >
                 {/* Animated Background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-amber-900/10"></div>
@@ -301,7 +360,7 @@ export default function App() {
                     <div className="w-full relative">
                         <div 
                             ref={projectsContainerRef}
-                            className="flex gap-8 pb-12 px-8 overflow-x-auto hide-scrollbar"
+                            className="flex gap-8 pb-12 px-8 overflow-x-auto hide-scrollbar projects-container"
                             style={{
                                 scrollSnapType: 'x mandatory',
                                 scrollPadding: '0 2rem'
@@ -311,7 +370,7 @@ export default function App() {
                                 <div
                                     key={index}
                                     ref={el => projectCardsRef.current[index] = el}
-                                    className="flex-shrink-0 w-80 lg:w-96 transition-all duration-500 ease-out cursor-pointer project-item"
+                                    className="flex-shrink-0 w-80 lg:w-96 transition-all duration-500 ease-out cursor-pointer project-item scroll-reveal-item"
                                     style={{
                                         scrollSnapAlign: 'start'
                                     }}
@@ -407,7 +466,7 @@ export default function App() {
                 ref={(el) => {
                     if (el) sectionRefs.current[3] = el;
                 }}
-                className="min-h-screen flex flex-col items-center justify-center px-6 bg-black/50 py-20"
+                className="min-h-screen flex flex-col items-center justify-center px-6 bg-black/50 py-20 scroll-mt-20"
             >
                 <ScrollReveal containerClassName="flex flex-col items-center gap-12 max-w-6xl w-full">
                     <h2 className="text-4xl md:text-5xl font-serif text-amber-100 text-center">Skills & Technologies</h2>
@@ -419,7 +478,7 @@ export default function App() {
                                 {skills.technical.map((skill) => (
                                     <span
                                         key={skill}
-                                        className="bg-amber-400/10 text-amber-400 px-3 py-2 rounded-full text-sm border border-amber-400/20"
+                                        className="bg-amber-400/10 text-amber-400 px-3 py-2 rounded-full text-sm border border-amber-400/20 scroll-reveal-item"
                                     >
                                         {skill}
                                     </span>
@@ -433,7 +492,7 @@ export default function App() {
                                 {skills.design.map((skill) => (
                                     <span
                                         key={skill}
-                                        className="bg-purple-400/10 text-purple-400 px-3 py-2 rounded-full text-sm border border-purple-400/20"
+                                        className="bg-purple-400/10 text-purple-400 px-3 py-2 rounded-full text-sm border border-purple-400/20 scroll-reveal-item"
                                     >
                                         {skill}
                                     </span>
@@ -447,7 +506,7 @@ export default function App() {
                                 {skills.tools.map((skill) => (
                                     <span
                                         key={skill}
-                                        className="bg-blue-400/10 text-blue-400 px-3 py-2 rounded-full text-sm border border-blue-400/20"
+                                        className="bg-blue-400/10 text-blue-400 px-3 py-2 rounded-full text-sm border border-blue-400/20 scroll-reveal-item"
                                     >
                                         {skill}
                                     </span>
@@ -465,7 +524,7 @@ export default function App() {
                 ref={(el) => {
                     if (el) sectionRefs.current[4] = el;
                 }}
-                className="min-h-screen flex flex-col items-center justify-center px-6 bg-gradient-to-br from-gray-900 to-black py-20"
+                className="min-h-screen flex flex-col items-center justify-center px-6 bg-gradient-to-br from-gray-900 to-black py-20 scroll-mt-20"
             >
                 <ScrollReveal containerClassName="flex flex-col items-center gap-8 max-w-2xl w-full text-center">
                     <h2 className="text-4xl md:text-5xl font-serif text-amber-100">Let's Work Together</h2>
