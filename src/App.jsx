@@ -164,8 +164,8 @@ export default function App() {
             description: "Advanced AI assistant with natural language processing and real-time response capabilities",
             image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80",
             technologies: ["React", "Node.js", "OpenAI API", "WebSocket", "MongoDB"],
-            liveUrl: "#",
-            githubUrl: "#",
+            liveUrl: "https://meta-ai-khaki.vercel.app",
+            githubUrl: "https://github.com/Kaungkhantthu655/meta-ai",
             features: ["Real-time Chat", "Multi-language Support", "Context Awareness", "File Processing"]
         },
         {
