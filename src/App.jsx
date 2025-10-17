@@ -5,6 +5,7 @@ import PillNav from "./PillNav";
 import ProjectCard from "./ProjectCard";
 import ScrollReveal from "./ScrollReveal";
 import proPic from "./assets/pro picture.jpg";
+import Particles from "./Particles";
 
 const sections = ["Home", "About", "Projects", "Skills", "Contact"];
 const NAV_HEIGHT = 80;
@@ -13,6 +14,7 @@ export default function App() {
     const [active, setActive] = useState("Home");
     const [isLoading, setIsLoading] = useState(true);
     const [isMounted, setIsMounted] = useState(false);
+    const [scrollProgress, setScrollProgress] = useState(0);
     const [selectedProject, setSelectedProject] = useState(null);
     const sectionRefs = useRef([]);
     const projectsContainerRef = useRef(null);
@@ -24,6 +26,23 @@ export default function App() {
         const timer = setTimeout(() => setIsLoading(false), 500);
         return () => clearTimeout(timer);
     }, []);
+
+    // Scroll progress for parallax
+    useEffect(() => {
+        if (!isMounted) return;
+
+        const updateScrollProgress = () => {
+            const scrollTop = window.pageYOffset;
+            const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = Math.min(scrollTop / docHeight, 1);
+            setScrollProgress(progress);
+        };
+
+        window.addEventListener('scroll', updateScrollProgress, { passive: true });
+        updateScrollProgress();
+        
+        return () => window.removeEventListener('scroll', updateScrollProgress);
+    }, [isMounted]);
 
     // Scroll performance monitor for fast scrolling
     useEffect(() => {
@@ -38,7 +57,6 @@ export default function App() {
             scrollSpeed = Math.abs(scrollTop - lastScrollTop);
             lastScrollTop = scrollTop;
 
-            // If scrolling very fast, add a class to handle it
             if (scrollSpeed > 100) {
                 document.body.classList.add('fast-scroll');
             }
@@ -94,7 +112,6 @@ export default function App() {
         window.addEventListener("scroll", scrollHandler, { passive: true });
         window.addEventListener("resize", scrollHandler, { passive: true });
         
-        // Multiple initial checks to ensure proper detection
         const initTimers = [
             setTimeout(scrollHandler, 100),
             setTimeout(scrollHandler, 500),
@@ -108,6 +125,27 @@ export default function App() {
         };
     }, [isMounted]);
 
+    // Particle configurations
+    const particleConfigs = {
+        home: {
+            particleCount: 2000,
+            particleSpread: 15,
+            speed: 0.05,
+            particleColors: ['#fef3c7', '#f59e0b', '#fbbf24', '#fde68a'],
+            moveParticlesOnHover: true,
+            particleHoverFactor: 2,
+            alphaParticles: true,
+            particleBaseSize: 100,
+            sizeRandomness: 0.8,
+            cameraDistance: 25,
+            disableRotation: false
+        }
+    };
+  
+
+    
+
+
     // Project hover effects like Duet Night Abyss
     const handleProjectHover = (hoveredIndex) => {
         if (!projectsContainerRef.current) return;
@@ -116,7 +154,6 @@ export default function App() {
         
         projectItems.forEach((item, index) => {
             if (index === hoveredIndex) {
-                // Scale up and bring forward the hovered item
                 gsap.to(item, {
                     scale: 1.05,
                     y: -10,
@@ -124,7 +161,6 @@ export default function App() {
                     ease: "power2.out"
                 });
             } else {
-                // Scale down and push back other items
                 gsap.to(item, {
                     scale: 0.95,
                     y: 10,
@@ -140,7 +176,6 @@ export default function App() {
 
         const projectItems = projectsContainerRef.current.querySelectorAll('.project-item');
         
-        // Reset all items to original state
         gsap.to(projectItems, {
             scale: 1,
             y: 0,
@@ -230,8 +265,18 @@ export default function App() {
     }
 
     return (
-        <div className="bg-gradient-to-b from-gray-900 via-black to-gray-900 min-h-screen text-white">
-            {/* Updated PillNav with proper initialization */}
+        <div className="bg-gradient-to-b from-gray-900 via-black to-gray-900 min-h-screen text-white relative overflow-x-hidden">
+            {/* Global Background Particles with Parallax */}
+            
+{/* Section-specific particles */}
+                <div className="fixed inset-0 pointer-events-none h-screen">
+                    <Particles
+                        {...particleConfigs.home}
+                        className="opacity-50"
+                    />
+                </div>
+                
+            {/* Updated PillNav */}
             <PillNav
                 items={sections.map((s) => ({ label: s, href: `#${s.toLowerCase()}` }))}
                 activeHref={`#${active.toLowerCase()}`}
@@ -247,35 +292,36 @@ export default function App() {
 
             {/* Home Section */}
             <section
-    id="home"
-    aria-label="Home Section"
-    ref={(el) => {
-        if (el) sectionRefs.current[0] = el;
-    }}
-    className="min-h-screen flex flex-col items-center justify-center px-6 relative scroll-mt-20"
->
-    <div className="absolute inset-0 bg-gradient-to-br from-amber-900/10 via-transparent to-purple-900/10"></div>
-    <ScrollReveal containerClassName="flex flex-col items-center gap-6 max-w-3xl w-full relative z-10">
-        {/* Larger profile picture with better styling */}
-        <div className="w-40 h-40 md:w-48 md:h-48 rounded-full bg-gradient-to-r from-amber-200 to-yellow-400 mb-8 overflow-hidden border-4 border-white/20 shadow-2xl shadow-amber-400/20">
-            <img 
-                src={proPic} 
-                alt="Kaung Khant Thu - Full Stack Developer"
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-            />
-        </div>
-        
-        <h1 className="text-5xl md:text-7xl font-serif font-bold text-center bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent">
-            Kaung Khant Thu
-        </h1>
-                    <p className="text-xl md:text-2xl text-amber-100 text-center mb-6">
+                id="home"
+                aria-label="Home Section"
+                ref={(el) => {
+                    if (el) sectionRefs.current[0] = el;
+                }}
+                className="min-h-screen flex flex-col items-center justify-center px-6 relative scroll-mt-20"
+            >
+                
+                <div className="absolute inset-0 bg-gradient-to-br from-amber-900/10 via-transparent to-purple-900/10"></div>
+                
+                <ScrollReveal containerClassName="flex flex-col items-center gap-6 max-w-3xl w-full relative">
+                    <div className="w-40 h-40 md:w-48 md:h-48 rounded-full bg-gradient-to-r from-amber-200 to-yellow-400 mb-8 overflow-hidden border-4 border-white/20 shadow-2xl shadow-amber-400/20 relative">
+                        <img 
+                            src={proPic} 
+                            alt="Kaung Khant Thu - Full Stack Developer"
+                            className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                        />
+                    </div>
+                    
+                    <h1 className="text-5xl md:text-7xl font-serif font-bold text-center bg-gradient-to-r from-amber-200 to-yellow-400 bg-clip-text text-transparent relative">
+                        Kaung Khant Thu
+                    </h1>
+                    <p className="text-xl md:text-2xl text-amber-100 text-center mb-6 relative">
                         Full Stack Web Developer 
                     </p>
-                    <p className="text-lg text-gray-300 text-center max-w-2xl mb-8">
+                    <p className="text-lg text-gray-300 text-center max-w-2xl mb-8 relative">
                         I create digital experiences that blend beautiful design with 
                         cutting-edge technology. Specializing in AI applications and modern web development.
                     </p>
-                    <div className="flex gap-4 flex-wrap justify-center">
+                    <div className="flex gap-4 flex-wrap justify-center relative">
                         <button className="bg-amber-400 text-gray-900 px-8 py-3 rounded-full font-semibold hover:bg-amber-300 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-amber-400/25">
                             View My Work
                         </button>
@@ -293,8 +339,9 @@ export default function App() {
                 ref={(el) => {
                     if (el) sectionRefs.current[1] = el;
                 }}
-                className="min-h-screen flex flex-col items-center justify-center px-6 bg-black/50 scroll-mt-20"
+                className="min-h-screen flex flex-col items-center justify-center px-6 S scroll-mt-20 relative bg-transparent"
             >
+                
                 <ScrollReveal containerClassName="flex flex-col items-center gap-8 max-w-4xl w-full">
                     <h2 className="text-4xl md:text-5xl font-serif text-amber-100">About Me</h2>
                     <div className="grid md:grid-cols-2 gap-8 items-center">
@@ -345,10 +392,9 @@ export default function App() {
                 }}
                 className="min-h-screen flex flex-col items-center justify-center px-6 py-20 relative overflow-hidden scroll-mt-20"
             >
-                {/* Animated Background */}
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 via-transparent to-amber-900/10"></div>
                 
-                <ScrollReveal containerClassName="flex flex-col items-center gap-16 max-w-7xl w-full relative z-10">
+                <ScrollReveal containerClassName="flex flex-col items-center gap-16 max-w-7xl w-full relative">
                     <h2 className="text-4xl md:text-6xl font-serif text-amber-100 text-center mb-4">
                         Featured Projects
                     </h2>
@@ -356,7 +402,6 @@ export default function App() {
                         Hover over projects to explore them in detail
                     </p>
                     
-                    {/* Projects Container - Horizontal Scroll like Duet Night Abyss */}
                     <div className="w-full relative">
                         <div 
                             ref={projectsContainerRef}
@@ -378,7 +423,6 @@ export default function App() {
                                     onMouseLeave={() => handleProjectLeave()}
                                 >
                                     <div className="relative group">
-                                        {/* Project Image Container */}
                                         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-amber-400/20 transition-all duration-500">
                                             <img
                                                 src={project.image}
@@ -386,14 +430,11 @@ export default function App() {
                                                 className="w-full h-64 object-cover transition-all duration-700 group-hover:scale-110"
                                             />
                                             
-                                            {/* Overlay Gradient */}
                                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-all duration-500"></div>
                                             
-                                            {/* Glow Effect */}
                                             <div className="absolute inset-0 rounded-2xl border border-amber-400/0 group-hover:border-amber-400/40 group-hover:shadow-[0_0_30px_rgba(251,191,36,0.3)] transition-all duration-500"></div>
                                         </div>
                                         
-                                        {/* Project Info */}
                                         <div className="mt-6 text-center transition-all duration-500 transform group-hover:-translate-y-2">
                                             <h3 className="text-2xl font-bold text-amber-100 mb-3">
                                                 {project.title}
@@ -402,7 +443,6 @@ export default function App() {
                                                 {project.description}
                                             </p>
                                             
-                                            {/* Technologies */}
                                             <div className="flex flex-wrap gap-2 justify-center mb-4">
                                                 {project.technologies.slice(0, 3).map((tech, techIndex) => (
                                                     <span 
@@ -419,11 +459,12 @@ export default function App() {
                                                 )}
                                             </div>
                                             
-                                            {/* Action Buttons */}
                                             <div className="flex gap-3 justify-center opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-200">
                                                 {project.liveUrl && (
                                                     <a 
                                                         href={project.liveUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
                                                         className="bg-amber-400 text-gray-900 px-6 py-2 rounded-full font-semibold hover:bg-amber-300 transition-all duration-300 transform hover:scale-105"
                                                         onClick={(e) => e.stopPropagation()}
                                                     >
@@ -433,6 +474,8 @@ export default function App() {
                                                 {project.githubUrl && (
                                                     <a 
                                                         href={project.githubUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
                                                         className="border border-amber-400 text-amber-400 px-6 py-2 rounded-full font-semibold hover:bg-amber-400/10 transition-all duration-300"
                                                         onClick={(e) => e.stopPropagation()}
                                                     >
@@ -446,7 +489,6 @@ export default function App() {
                             ))}
                         </div>
                         
-                        {/* Scroll Indicator */}
                         <div className="flex justify-center gap-2 mt-8">
                             {projects.map((_, index) => (
                                 <div 
@@ -547,6 +589,8 @@ export default function App() {
                                 <a
                                     key={social.name}
                                     href={social.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     className="text-gray-400 hover:text-amber-400 transition-colors"
                                     aria-label={`Visit my ${social.name}`}
                                 >
